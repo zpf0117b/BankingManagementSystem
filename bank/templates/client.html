@@ -1,0 +1,208 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../static/bootstrap/favicon.ico">
+
+    <title>Client</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../static/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet">
+
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <link href="../static/bootstrap/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="../static/bootstrap/css/justified-nav.css" rel="stylesheet">
+
+    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+    <!-- <script src="../assets/js/ie-emulation-modes-warning.js"></script> -->
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://cdn.bootcss.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="container theme-showcase">
+
+      <!-- The justified navigation menu is meant for single line per list item.
+           Multiple lines will require custom code not provided by Bootstrap. -->
+      <div class="masthead">
+        <nav>
+          <ul class="nav nav-justified">
+            <li><a href="branch">支行管理</a></li>
+            <li class="active"><a href="client">客户管理</a></li>
+            <li><a href="account">账户管理</a></li>
+            <li><a href="loan">贷款管理</a></li>
+            <li><a href="statistic">业务统计</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <!-- Jumbotron -->
+      <div class="jumbotron">
+        <h3>您正在查询的支行：{{ branch_name }}</h3>
+        <p><a class="btn btn-lg btn-success" href="/" role="button">查询其他支行</a></p>
+      </div>
+
+      <!-- Example row of columns -->
+      <h2 class="sub-header">客户信息</h2>
+      <form action="{{ url_for('operation') }}" method="POST">
+        <div class="form-group">
+          <button id="client" type="submit" class="btn btn-primary">提交</button>
+          <div class="btn-group" data-toggle="buttons">
+            {% if signal == 1 %}
+            <label class="col-sm-12"><label class="btn btn-sm btn-success">
+              <input type="radio" name="opselect" value="clientadd" id = "clientadd"/>增加
+            </label></label>
+            {% else %}
+            <label  class="col-sm-6"><label class="btn btn-sm btn-warning">
+              <input type="radio" name="opselect" value="clientdelete" id = "clientdelete"/>删除
+            </label></label>
+            <label  class="col-sm-6"><label class="btn btn-sm btn-success">
+              <input type="radio" name="opselect" value="clientchange" id = "clientchange"/>修改
+            </label></label>
+            {% endif %}
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>客户姓名</th>
+                <th>身份证号</th>
+                <th>联系电话</th>
+                <th>地址</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{{ client_info[0] }}</td>
+                <td>{{ client_info[1] }}</td>
+                <td>{{ client_info[2] }}</td>
+                <td>{{ client_info[3] }}</td>
+              </tr>
+              <tr>
+                {% if signal == 1 %}
+                  <td><input type="text" class="form-control" name="clientname" placeholder="客户姓名" required></td>
+                  <td><input type="text" class="form-control" name="clientid" placeholder="身份证号" required></td>
+                  <td><input type="text" class="form-control" name="clientphone" placeholder="联系电话" required></td>
+                  <td><input type="text" class="form-control" name="clientaddress" placeholder="地址" required></td>
+                {% else %}
+                  <td><input type="text" class="form-control" name="clientname" placeholder="客户姓名"></td>
+                  <td></td>
+                  <td><input type="text" class="form-control" name="clientphone" placeholder="联系电话"></td>
+                  <td><input type="text" class="form-control" name="clientaddress" placeholder="地址"></td>
+                {% endif %}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>联系人姓名</th>
+                <th>与客户关系</th>
+                <th>联系人电话</th>
+                <th>联系人邮箱</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{{ client_info[4] }}</td>
+                <td>{{ client_info[5] }}</td>
+                <td>{{ client_info[6] }}</td>
+                <td>{{ client_info[7] }}</td>
+              </tr>
+              <tr>
+                {% if signal == 1 %}
+                <td><input type="text" class="form-control" name="contactname" placeholder="联系人姓名" required></td>
+                <td>
+                  <select class="form-control" name="relationship" required>
+                    <option value="父亲">父亲</option>
+                    <option value="母亲">母亲</option>
+                    <option value="女儿">女儿</option>
+                    <option value="儿子">儿子</option>
+                    <option value="姐妹">姐妹</option>
+                    <option value="兄弟">兄弟</option>
+                    <option value="其他">其他</option>
+                  </select>
+                </td>
+                <td><input type="text" class="form-control" name="contactphone" placeholder="联系人电话" required></td>
+                <td><input type="text" class="form-control" name="contactemail" placeholder="联系人邮箱" required></td>
+                {% else %}
+                <td><input type="text" class="form-control" name="contactname" placeholder="联系人姓名" ></td>
+                <td>
+                  <select class="form-control" name="relationship" >
+                    <option value="父亲">父亲</option>
+                    <option value="母亲">母亲</option>
+                    <option value="女儿">女儿</option>
+                    <option value="儿子">儿子</option>
+                    <option value="姐妹">姐妹</option>
+                    <option value="兄弟">兄弟</option>
+                    <option value="其他">其他</option>
+                  </select>
+                </td>
+                <td><input type="text" class="form-control" name="contactphone" placeholder="联系人电话" ></td>
+                <td><input type="text" class="form-control" name="contactemail" placeholder="联系人邮箱" ></td>
+                {% endif %}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>业务类型</th>
+                <th>负责员工</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>储蓄账户</td>
+                <td>{{ client_info[8] }}</td>
+              </tr>
+              <tr>
+                <td>支票账户</td>
+                <td>{{ client_info[9] }}</td>
+              </tr>
+              <tr>
+                <td>贷款</td>
+                <td>{{ client_info[10] }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </form>
+      <br>
+
+      <!-- Site footer -->
+      <footer class="footer">
+        <p>&copy; Pengfei Zhang, All Rights Reserved.</p>
+      </footer>
+
+    </div> <!-- /container -->
+
+
+    <script src="../static/bootstrap/js/jquery.min.js"></script>
+	  <script src="../static/bootstrap/js/bootstrap.min.js"></script>
+
+	  <!-- <script src="https://cdn.bootcss.com/smalot-bootstrap-datetimepicker/2.4.4/js/locales/bootstrap-datetimepicker.zh-CN.js"></script> -->
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <!-- <script src="../assets/js/ie10-viewport-bug-workaround.js"></script> -->
+  </body>
+</html>

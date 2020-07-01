@@ -1,0 +1,302 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../static/bootstrap/favicon.ico">
+
+    <title>Client</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../static/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet">
+    <link href="../static/bootstrap/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
+
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <link href="../static/bootstrap/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="../static/bootstrap/css/justified-nav.css" rel="stylesheet">
+
+    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+    <!-- <script src="../assets/js/ie-emulation-modes-warning.js"></script> -->
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://cdn.bootcss.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="container theme-showcase">
+
+      <!-- The justified navigation menu is meant for single line per list item.
+           Multiple lines will require custom code not provided by Bootstrap. -->
+      <div class="masthead">
+        <nav>
+          <ul class="nav nav-justified">
+            <li><a href="branch">支行管理</a></li>
+            <li><a href="client">客户管理</a></li>
+            <li class="active"><a href="account">账户管理</a></li>
+            <li><a href="loan">贷款管理</a></li>
+            <li><a href="statistic">业务统计</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <!-- Jumbotron -->
+      <div class="jumbotron">
+        <h3>您正在查询的支行：{{ branch_name }}</h3>
+        <p><a class="btn btn-lg btn-success" href="/" role="button">查询其他支行</a></p>
+      </div>
+
+      <!-- Example row of columns -->
+      <h2 class="sub-header">账户信息</h2>
+      <form action="{{ url_for('operation') }}" method="POST">
+        <div class="form-group">
+          <button id="account" type="submit" class="btn btn-primary">提交</button>
+          <div class="btn-group" data-toggle="buttons">
+            {% if cheque_or_saving == 0 %}
+            <label  class="col-sm-12"><label class="btn btn-sm btn-success">
+              <input type="radio" name="opselect" value="accountadd" id = "accountadd"/>开户
+            </label></label>
+            {% else %}
+            <label  class="col-sm-6"><label class="btn btn-sm btn-warning">
+              <input type="radio" name="opselect" value="accountdelete" id = "accountdelete"/>销户
+            </label></label>
+            <label  class="col-sm-6"><label class="btn btn-sm btn-success">
+              <input type="radio" name="opselect" value="accountchange" id = "accountchange"/>修改
+            </label></label>
+            {% endif %}
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>账户号</th>
+                <th>开户日期</th>
+                <th>账户类型</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{{ account_info[0] }}</td>
+                <td>{{ account_info[1] }}</td>
+                <td>{{ account_info[2] }}</td>
+              </tr>
+              <tr>
+              {% if cheque_or_saving == 0 %}
+                <td><input type="text" class="form-control" name="accountnumber" placeholder="账户号" required></td>
+                <td><input id="startdate" type="text" class="form-control" name="opendate" placeholder="开户日期" readonly required></td>
+                <td>
+                  <select class="form-control" name="chequeorsaving" required>
+                    <option value="saving">储蓄账户</option>
+                    <option value="cheque">支票账户</option>
+                  </select>
+                </td>
+              {% else %}
+                <td></td>
+                <td></td>
+                <td></td>
+              {% endif %}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>余额</th>
+                <th>透支额</th>
+                <th>利率</th>
+                <th>货币类型</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% if cheque_or_saving == -1 %}
+              <tr>
+                <td>{{ account_info[3] }}</td>
+                <td></td>
+                <td>{{ account_info[5] }}</td>
+                <td>{{ account_info[6] }}</td>
+              </tr>
+              <tr>
+                <td><input type="text" class="form-control" name="remainingsum" placeholder="余额" ></td>
+                <td></td>
+                <td><input type="text" class="form-control" name="interestrate" placeholder="利率" ></td>
+                <td>
+                  <select class="form-control" name="currency" disabled>
+                    <option value="rmb">人民币</option>
+                    <option value="usd">美元</option>
+                  </select>
+                </td>
+              </tr>
+              {% elif cheque_or_saving == 1 %}
+              <tr>
+                <td>{{ account_info[3] }}</td>
+                <td>{{ account_info[4] }}</td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td><input type="text" class="form-control" name="remainingsum" placeholder="余额" ></td>
+                <td><input type="text" class="form-control" name="overdraft" placeholder="透支额"></td>
+                <td></td>
+                <td></td>
+              </tr>
+              {% elif cheque_or_saving == 0 %}
+              <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td><input type="text" class="form-control" name="remainingsum" placeholder="余额" required></td>
+                <td><input type="text" class="form-control" name="overdraft" value="-1" placeholder="透支额" required></td>
+                <td><input type="text" class="form-control" name="interestrate" value="-1" placeholder="利率" required></td>
+                <td>
+                  <select class="form-control" name="currency" required>
+                    <option value="rmb">人民币</option>
+                    <option value="usd">美元</option>
+                  </select>
+                </td>
+              </tr>
+              {% else %}
+              <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+        <br>
+
+        <h2 class="sub-header">账户客户信息</h2>
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>客户身份证号</th>
+                <th>最近访问日期</th>
+                <th>权限</th>
+                <th>修改</th>
+                <!-- for add, that's add clients; for change, that's change visit time -->
+              </tr>
+            </thead>
+            <tbody>
+              <div class="btn-group" data-toggle="buttons">
+                {% for row in client_in_account %}
+                <tr>
+                  <td>{{ row[0] }}</td>
+                  <td>{{ row[1] }}
+                    <input id="visitdate{{ row[0] }}" type="text" class="form-control" name="visitdate" placeholder="访问日期" readonly>
+                  </td>
+                  <td>持有</td>
+                  <td>
+                    <label>
+                      <input type="checkbox" checked=True name="accountclient" value="{{ row[0] }}" id = "{{ row[0] }}"/>
+                    </label>
+                  </td>
+                </tr>
+                {% endfor %}
+                {% for row in client_notin_account %}
+                <tr>
+                  <td>{{ row[0] }}</td>
+                  <td></td>
+                  <td>不持有</td>
+                  <td>
+                    <label>
+                      <input type="checkbox" name="accountclient" value="{{ row[0] }}" id = "{{ row[0] }}"/>
+                    </label>
+                  </td>
+                </tr>
+                {% endfor %}
+              </div>
+            </tbody>
+          </table>
+        </div>
+      </form>
+      <br>
+
+      <!-- Site footer -->
+      <footer class="footer">
+        <p>&copy; Pengfei Zhang, All Rights Reserved.</p>
+      </footer>
+
+    </div> <!-- /container -->
+
+
+    <script src="../static/bootstrap/js/jquery.min.js"></script>
+    <script src="../static/bootstrap/js/bootstrap.min.js"></script>
+	  <script src="../static/bootstrap/js/bootstrap-datetimepicker.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <!-- <script src="../assets/js/ie10-viewport-bug-workaround.js"></script> -->
+    <script type="text/javascript">
+      $(function() {
+        $('#account').on('click', function() {
+          var checkOne = false;                    //判断是否被选择条件                      //存入被选中项的值
+          var checkBox = $('input[name = accountclient]'); //获得得到所的复选框
+          for (var i = 0; i < checkBox.length; i++) {
+          //如果有1个被选中时（jquery1.6以上还可以用if(checkBox[i].prop('checked')) 去判断checkbox是否被选中）
+            if (checkBox[i].checked) {
+              checkOne = true;
+            };
+          };
+          if (checkOne) {
+
+          } else {
+            alert("至少要选择一项");
+          };
+        });
+      $('#startdate').datetimepicker({
+        minView: "month",
+        format: 'yyyy-mm-dd',
+        //判断日期是否改变，改变就将日期选择框关闭
+      }).on('dp.change', function (ev) {
+        var newDateTime = ev.date ? ev.date.format('yyyy-MM-dd') : "";
+        var oldDateTime = ev.oldDate ? ev.oldDate.format('yyyy-MM-dd') : "";
+        if (newDateTime != oldDateTime) {
+            $(this).data("DateTimePicker").hide();
+        }
+      });
+    });
+    </script>
+    {% for row in client_in_account %}
+    <script type="text/javascript">
+    $(function() {
+      $("#visitdate{{ row[0] }}").datetimepicker({
+        minView: "month",
+        format: 'yyyy-mm-dd',
+        //判断日期是否改变，改变就将日期选择框关闭
+      }).on('dp.change', function (ev) {
+        var newDateTime = ev.date ? ev.date.format('yyyy-MM-dd') : "";
+        var oldDateTime = ev.oldDate ? ev.oldDate.format('yyyy-MM-dd') : "";
+        if (newDateTime != oldDateTime) {
+            $(this).data("DateTimePicker").hide();
+        }
+      });
+    });
+    </script>
+    {% endfor %}
+  </body>
+</html>
