@@ -1,0 +1,113 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../static/bootstrap/favicon.ico">
+
+    <title>Branch Bank</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../static/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet">
+
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <link href="../static/bootstrap/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="../static/bootstrap/css/justified-nav.css" rel="stylesheet">
+
+    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+    <!-- <script src="../assets/js/ie-emulation-modes-warning.js"></script> -->
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://cdn.bootcss.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="container">
+
+      <!-- The justified navigation menu is meant for single line per list item.
+           Multiple lines will require custom code not provided by Bootstrap. -->
+
+      <!-- Jumbotron -->
+      <div class="jumbotron">
+        <h2>银行管理界面</h2>
+        <div class="alert alert-danger">
+          {{ prompt_message }}
+        </div>
+      </div>
+
+      <h2 class="sub-header">支行管理</h2>
+      <form action="{{ url_for('branch') }}" method="POST">
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>支行名</th>
+                <th>所在城市</th>
+                <th>资产</th>
+                <th>
+                  <button id="branchselect" type="submit" class="btn btn-sm btn-primary">查询/管理</button>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <div class="btn-group" data-toggle="buttons">
+                {% for row in banks %}
+                <tr>
+                  <td>{{ row[0] }}</td>
+                  <td>{{ row[1] }}</td>
+                  <td>{{ row[2] }}</td>
+                  <td>
+                    <input type="radio" name="branchselect" value="{{ row[0] }}" id = "{{ row[0] }}"/><br>
+                  </td>
+                </tr>
+                {% endfor %}
+              </div>
+            </tbody>
+          </table>
+        </div>
+      </form>
+
+      <!-- Site footer -->
+      <footer class="footer">
+        <p>&copy; Pengfei Zhang, All Rights Reserved.</p>
+      </footer>
+
+    </div> <!-- /container -->
+
+
+    <script src="../static/bootstrap/js/jquery.min.js"></script>
+    <script src="../static/bootstrap/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+      $(function() {
+        $('#branchselect').on('click', function() {
+          var checkOne = false;                    //判断是否被选择条件                      //存入被选中项的值
+          var checkBox = $('input[name = branchselect]'); //获得得到所的复选框
+          for (var i = 0; i < checkBox.length; i++) {
+          //如果有1个被选中时（jquery1.6以上还可以用if(checkBox[i].prop('checked')) 去判断checkbox是否被选中）
+            if (checkBox[i].checked) {
+              checkOne = true;
+            };
+          };
+          if (checkOne) {
+          } else {
+            alert("至少要选择一项");
+          };
+        });
+      });
+    </script>
+
+  </body>
+</html>

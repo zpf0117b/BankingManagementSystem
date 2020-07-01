@@ -1,0 +1,240 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../static/bootstrap/favicon.ico">
+
+    <title>Client</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="../static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../static/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet">
+    <link href="../static/bootstrap/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
+
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <link href="../static/bootstrap/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="../static/bootstrap/css/justified-nav.css" rel="stylesheet">
+
+    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+    <!-- <script src="../assets/js/ie-emulation-modes-warning.js"></script> -->
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://cdn.bootcss.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <div class="container theme-showcase">
+
+      <!-- The justified navigation menu is meant for single line per list item.
+           Multiple lines will require custom code not provided by Bootstrap. -->
+      <div class="masthead">
+        <nav>
+          <ul class="nav nav-justified">
+            <li><a href="branch">支行管理</a></li>
+            <li><a href="client">客户管理</a></li>
+            <li><a href="account">账户管理</a></li>
+            <li class="active"><a href="loan">贷款管理</a></li>
+            <li><a href="statistic">业务统计</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <!-- Jumbotron -->
+      <div class="jumbotron">
+        <h3>您正在查询的支行：{{ branch_name }}</h3>
+        <p><a class="btn btn-lg btn-success" href="/" role="button">查询其他支行</a></p>
+      </div>
+
+      <!-- Example row of columns -->
+      <h2 class="sub-header">贷款信息</h2>
+      <form action="{{ url_for('operation') }}" method="POST">
+        <div class="form-group">
+          <button id="account" type="submit" class="btn btn-primary">提交</button>
+          <div class="btn-group" data-toggle="buttons">
+            {% if add_loan %}
+            <label  class="col-sm-12"><label class="btn btn-sm btn-success">
+              <input type="radio" name="opselect" value="loanadd" id = "loanadd" required/>增加
+            </label></label>
+            {% else %}
+            <label  class="col-sm-12"><label class="btn btn-sm btn-warning">
+              <input type="radio" name="opselect" value="loandelete" id = "loandelete" required/>删除
+            </label></label>
+            {% endif %}
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>贷款号</th>
+                <th>发放总次数</th>
+                <th>发放总金额</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{{ loan_info[0] }}</td>
+                <td>{{ loan_info[1] }}</td>
+                <td>{{ loan_info[2] }}</td>
+              </tr>
+              {% if add_loan %}
+              <tr>
+                <td><input type="text" class="form-control" name="loannumber" placeholder="贷款号"></td>
+                <td><input type="text" class="form-control" name="overallissuetime" placeholder="发放总次数"></td>
+                <td><input type="text" class="form-control" name="overallissueamount" placeholder="发放总金额"></td>
+              </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+        <br>
+
+        <h2 class="sub-header">账户客户信息</h2>
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>客户身份证号</th>
+                <th>权限</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% if add_loan %}
+                {% for row in all_client %}
+                <tr>
+                  <td>{{ row[1] }}</td>
+                  <td>
+                    <label>
+                      <input type="checkbox" name="addloanclient" value="{{ row[1] }}" id = "{{ row[1] }}"/>
+                    </label>
+                  </td>
+                </tr>
+                {% endfor %}
+              {% else %}
+                {% for row in client_in_loan %}
+                <tr>
+                  <td>{{ row }}</td>
+                  <td>持有</td>
+                </tr>
+                {% endfor %}
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+        <br>
+
+        <h2 class="sub-header">贷款信息</h2>
+        </p>
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>贷款发放日期</th>
+                <th>发放金额(￥)</th>
+                {% if add_loan %}
+                <th><button id="AddMoreFileBox" class="btn btn-info">+</button></th>
+                {% else %}
+                <th>已发放</th>
+                {% endif %}
+              </tr>
+            </thead>
+            <tbody id="InputsWrapper">
+              {% if add_loan %}
+                <tr>
+                  <td><input type="text" name="paymentsdate" id="paydate1" placeholder="此次发放日期" readonly required/></td>
+                  <td><input type="text" name="paymentsamount" id="payamount1" placeholder="此次发放金额" required/></td>
+                  <td>
+                    <button class="btn btn-warning btn-sm removeclass">删除</button>
+                  </td>
+                </tr>
+              {% else %}
+                {% for row in loan_payments %}
+                <tr>
+                  <td>{{ row[0] }}</td>
+                  <td>{{ row[1] }}</td>
+                  <td>{{ row[2] }}</td>
+                </tr>
+                {% endfor %}
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </form>
+      <!-- Site footer -->
+      <footer class="footer">
+        <p>&copy; Pengfei Zhang, All Rights Reserved.</p>
+      </footer>
+
+    </div> <!-- /container -->
+
+
+    <script src="../static/bootstrap/js/jquery.min.js"></script>
+    <script src="../static/bootstrap/js/bootstrap.min.js"></script>
+	  <script src="../static/bootstrap/js/bootstrap-datetimepicker.min.js"></script>
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <!-- <script src="../assets/js/ie10-viewport-bug-workaround.js"></script> -->
+    <script type="text/javascript">  
+      $(function() {  
+        var MaxInputs = 8; //maximum input boxes allowed     
+        var x = $("#InputsWrapper").length; //initlal text box count  
+        var FieldCount=1; //to keep track of text box added  
+  
+        $('#paydate1').datetimepicker({
+          minView: "month",
+          format: 'yyyy-mm-dd',
+        //判断日期是否改变，改变就将日期选择框关闭
+        }).on('dp.change', function (ev) {
+          var newDateTime = ev.date ? ev.date.format('yyyy-MM-dd') : "";
+          var oldDateTime = ev.oldDate ? ev.oldDate.format('yyyy-MM-dd') : "";
+          if (newDateTime != oldDateTime) {
+            $(this).data("DateTimePicker").hide();
+          }
+        });
+
+        $("#AddMoreFileBox").click(function (e)  //on add input button click  
+        {  
+          if(x <= MaxInputs) //max input box allowed
+          {  
+            FieldCount++; //text box added increment  
+            //add input box  
+            $("#InputsWrapper").append('<tr><td><input type="text" name="paymentsdate" id="paydate' + String(FieldCount) + '" placeholder="此次发放日期" readonly required/></td><td><input type="text" name="paymentsamount" id="payamount' + String(FieldCount) + '" placeholder="此次发放金额" required/></td><td><button class="btn btn-warning btn-sm removeclass">删除</button></td></tr>');  
+              x++; //text box increment  
+            }
+            $('#paydate' + String(FieldCount)).datetimepicker({
+              minView: "month",
+              format: 'yyyy-mm-dd',
+            //判断日期是否改变，改变就将日期选择框关闭
+              }).on('dp.change', function (ev) {
+              var newDateTime = ev.date ? ev.date.format('yyyy-MM-dd') : "";
+              var oldDateTime = ev.oldDate ? ev.oldDate.format('yyyy-MM-dd') : "";
+              if (newDateTime != oldDateTime) {
+                $(this).data("DateTimePicker").hide();
+              }
+            });
+          return false;  
+        });  
+  
+        $("body").on("click", '.removeclass', function(e){ //user click on remove text  
+          if( x > 1 ) {  
+            $(this).parent().parent().remove(); //remove text box  
+            x--; //decrement textbox  
+          }  
+          return false;  
+        })     
+      });  
+    </script> 
+  </body>
+</html>
